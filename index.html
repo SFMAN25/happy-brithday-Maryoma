@@ -15,12 +15,13 @@
 
     <style>
         :root {
-            --bg-dark: #0a0914;
-            --primary-pink: #ff2a85;
+            --bg-dark: #07060f;
+            --neon-pink: #ff2a85;
             --neon-gold: #ffd700;
             --neon-blue: #00f0ff;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.12);
+            --neon-orange: #ff7b00;
+            --glass-bg: rgba(16, 15, 32, 0.58);
+            --glass-border: rgba(255, 255, 255, 0.14);
         }
 
         * {
@@ -32,9 +33,6 @@
 
         body {
             background-color: var(--bg-dark);
-            background-image:
-                radial-gradient(circle at 15% 20%, rgba(255, 42, 133, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 85% 80%, rgba(0, 240, 255, 0.12) 0%, transparent 40%);
             color: #ffffff;
             font-family: 'Cairo', sans-serif;
             min-height: 100vh;
@@ -42,29 +40,80 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
-        /* أزرار التحكم العلوية */
-        .top-controls {
+        /* خلفية نيون هادية ومتحركة ببطء */
+        .ambient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0d0b1e 0%, #06050c 100%);
+        }
+
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(85px);
+            opacity: 0.34;
+            will-change: transform;
+        }
+
+        .orb-pink {
+            width: 340px;
+            height: 340px;
+            background: var(--neon-pink);
+            top: -80px;
+            right: -80px;
+            animation: driftSlowA 22s ease-in-out infinite alternate;
+        }
+
+        .orb-blue {
+            width: 360px;
+            height: 360px;
+            background: var(--neon-blue);
+            bottom: -90px;
+            left: -90px;
+            opacity: 0.26;
+            animation: driftSlowB 26s ease-in-out infinite alternate;
+        }
+
+        .orb-gold {
+            width: 260px;
+            height: 260px;
+            background: var(--neon-gold);
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.18;
+            animation: driftSlowC 20s ease-in-out infinite alternate;
+        }
+
+        .orb-orange {
+            width: 240px;
+            height: 240px;
+            background: var(--neon-orange);
+            bottom: 18%;
+            right: -60px;
+            opacity: 0.2;
+            animation: driftSlowD 24s ease-in-out infinite alternate;
+        }
+
+        /* زر التحكم في الصوت */
+        .sound-control {
             position: fixed;
             top: 18px;
             left: 18px;
-            right: 18px;
             z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-        }
-
-        .ctrl-btn {
-            pointer-events: auto;
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            color: white;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+            color: #ffffff;
             height: 42px;
-            padding: 0 14px;
+            padding: 0 16px;
             border-radius: 50px;
             display: inline-flex;
             align-items: center;
@@ -74,20 +123,16 @@
             font-size: 0.85rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.35);
-            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.2), 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .ctrl-btn:active { transform: scale(0.93); }
-        .ctrl-btn.active-mic {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
-        }
+        .sound-control:active { transform: scale(0.93); }
 
         /* الحاوية الرئيسية */
         .container {
             width: 100%;
             max-width: 480px;
-            padding: 68px 20px 80px;
+            padding: 72px 20px 84px;
             text-align: center;
             position: relative;
             z-index: 2;
@@ -97,11 +142,14 @@
         .age-hero {
             padding: 28px 20px;
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border: 1px solid var(--glass-border);
             border-radius: 28px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            box-shadow:
+                0 20px 45px rgba(0, 0, 0, 0.55),
+                0 0 28px rgba(255, 42, 133, 0.14),
+                inset 0 0 20px rgba(0, 240, 255, 0.05);
             position: relative;
             overflow: hidden;
         }
@@ -110,12 +158,13 @@
             display: inline-block;
             padding: 6px 16px;
             border-radius: 50px;
-            background: rgba(255, 42, 133, 0.15);
-            border: 1px solid rgba(255, 42, 133, 0.4);
-            color: #ff7eb3;
+            background: rgba(255, 42, 133, 0.16);
+            border: 1px solid rgba(255, 42, 133, 0.55);
+            color: #ff85ba;
             font-size: 0.82rem;
             font-weight: 700;
             margin-bottom: 14px;
+            box-shadow: 0 0 14px rgba(255, 42, 133, 0.25);
             transition: all 0.5s ease;
         }
 
@@ -129,7 +178,6 @@
             justify-content: center;
             align-items: center;
             direction: ltr;
-            text-shadow: 0 0 30px rgba(255, 42, 133, 0.55);
             position: relative;
             height: 105px;
         }
@@ -139,10 +187,14 @@
             transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        #digit-2 { color: #ffffff; }
+        #digit-2 {
+            color: #ffffff;
+            text-shadow: 0 0 18px rgba(0, 240, 255, 0.55), 0 0 36px rgba(255, 42, 133, 0.35);
+        }
+
         #digit-6 {
             color: var(--neon-gold);
-            text-shadow: 0 0 35px rgba(255, 215, 0, 0.65);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.75), 0 0 42px rgba(255, 123, 0, 0.45);
         }
 
         .digit-fall {
@@ -153,20 +205,24 @@
 
         .digit-hero {
             transform: scale(1.25);
-            color: var(--primary-pink) !important;
-            text-shadow: 0 0 40px rgba(255, 42, 133, 0.9), 0 0 80px rgba(255, 215, 0, 0.5) !important;
+            color: var(--neon-pink) !important;
+            text-shadow:
+                0 0 22px rgba(255, 42, 133, 0.95),
+                0 0 45px rgba(0, 240, 255, 0.55),
+                0 0 75px rgba(255, 215, 0, 0.5) !important;
         }
 
         .main-title {
             font-size: 1.5rem;
             font-weight: 800;
             margin-bottom: 10px;
+            text-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
             transition: all 0.4s ease;
         }
 
         .sub-title {
             font-size: 0.96rem;
-            color: #cbd5e1;
+            color: #d6deeb;
             line-height: 1.65;
             min-height: 52px;
         }
@@ -190,23 +246,23 @@
         .candle {
             width: 14px;
             height: 44px;
-            background: repeating-linear-gradient(45deg, #fff, #fff 5px, var(--primary-pink) 5px, var(--primary-pink) 10px);
+            background: repeating-linear-gradient(45deg, #fff, #fff 5px, var(--neon-pink) 5px, var(--neon-pink) 10px);
             border-radius: 4px;
             position: relative;
             z-index: 3;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            box-shadow: 0 0 12px rgba(255, 42, 133, 0.5);
         }
 
         .flame {
             width: 18px;
             height: 28px;
-            background: radial-gradient(ellipse at bottom, #fff 0%, #ffd700 40%, #ff5e00 90%);
+            background: radial-gradient(ellipse at bottom, #fff 0%, var(--neon-gold) 42%, var(--neon-orange) 90%);
             border-radius: 50% 50% 35% 35%;
             position: absolute;
             top: -30px;
             left: -2px;
-            box-shadow: 0 0 20px #ff9d00, 0 0 40px #ff5e00;
-            animation: flicker 0.15s infinite alternate;
+            box-shadow: 0 0 20px var(--neon-gold), 0 0 42px var(--neon-orange);
+            animation: flicker 0.16s infinite alternate;
             transform-origin: bottom center;
             transition: opacity 0.3s, transform 0.3s;
         }
@@ -223,7 +279,7 @@
             left: 3px;
             width: 8px;
             height: 8px;
-            background: rgba(255,255,255,0.65);
+            background: rgba(255, 255, 255, 0.7);
             border-radius: 50%;
             opacity: 0;
             pointer-events: none;
@@ -233,10 +289,11 @@
         .cake-top {
             width: 130px;
             height: 36px;
-            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            background: linear-gradient(90deg, var(--neon-pink), #ff66a8, var(--neon-blue));
             border-radius: 15px 15px 5px 5px;
             position: relative;
             z-index: 2;
+            box-shadow: 0 0 18px rgba(255, 42, 133, 0.35);
         }
         .icing {
             position: absolute;
@@ -244,21 +301,23 @@
             left: 0;
             width: 100%;
             height: 14px;
-            background: #fff;
+            background: #ffffff;
             border-radius: 15px 15px 8px 8px;
+            box-shadow: 0 2px 10px rgba(0, 240, 255, 0.35);
         }
         .cake-bottom {
             width: 160px;
             height: 46px;
-            background: linear-gradient(to right, #ffd700, #ffb700);
+            background: linear-gradient(90deg, var(--neon-gold), var(--neon-orange));
             border-radius: 10px 10px 18px 18px;
             margin-top: -4px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55), 0 0 20px rgba(255, 215, 0, 0.25);
         }
         .plate {
             width: 190px;
             height: 10px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
             border-radius: 50%;
             margin-top: 2px;
         }
@@ -266,8 +325,9 @@
         .instruction-hint {
             font-size: 0.88rem;
             color: var(--neon-gold);
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
             margin-top: 8px;
-            animation: pulse 1.5s infinite;
+            animation: pulse 1.8s infinite;
             font-weight: 700;
         }
 
@@ -288,7 +348,8 @@
         .section-heading {
             font-size: 1.2rem;
             font-weight: 800;
-            color: #ff7eb3;
+            color: #ff7eb8;
+            text-shadow: 0 0 16px rgba(255, 42, 133, 0.45);
             margin-bottom: 10px;
         }
 
@@ -297,7 +358,8 @@
             font-size: 0.8rem;
             color: var(--neon-blue);
             background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.45);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.22);
             padding: 4px 12px;
             border-radius: 20px;
             margin-bottom: 16px;
@@ -342,20 +404,26 @@
             align-items: center;
             justify-content: center;
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
         }
 
+        .flip-card:nth-child(1) .flip-card-front { border-color: rgba(255, 42, 133, 0.38); }
+        .flip-card:nth-child(2) .flip-card-front { border-color: rgba(0, 240, 255, 0.38); }
+        .flip-card:nth-child(3) .flip-card-front { border-color: rgba(255, 215, 0, 0.38); }
+        .flip-card:nth-child(4) .flip-card-front { border-color: rgba(255, 123, 0, 0.38); }
+
         .flip-card.flipped .flip-card-back {
-            border-color: rgba(255, 215, 0, 0.55);
+            border-color: var(--neon-gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.25), 0 8px 22px rgba(0, 0, 0, 0.4);
         }
 
         .flip-card-front span { font-size: 2.1rem; margin-bottom: 6px; }
-        .flip-card-front p { font-size: 0.82rem; color: #94a3b8; font-weight: 700; }
+        .flip-card-front p { font-size: 0.82rem; color: #a5b4fc; font-weight: 700; }
 
         .flip-card-back {
-            background: linear-gradient(135deg, rgba(255,42,133,0.22), rgba(255,215,0,0.12));
+            background: linear-gradient(135deg, rgba(255, 42, 133, 0.24), rgba(0, 240, 255, 0.14));
             transform: rotateY(180deg);
             font-size: 0.86rem;
             font-weight: 700;
@@ -366,7 +434,9 @@
         /* صندوق اختيار الأمنية السريعة */
         .wish-box {
             background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 215, 0, 0.28);
+            box-shadow: 0 0 22px rgba(255, 215, 0, 0.1);
             border-radius: 22px;
             padding: 18px 15px;
             margin-bottom: 22px;
@@ -376,6 +446,7 @@
             font-size: 0.9rem;
             font-weight: 700;
             color: var(--neon-gold);
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.35);
             margin-bottom: 12px;
         }
 
@@ -388,7 +459,7 @@
 
         .wish-chip {
             background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(0, 240, 255, 0.25);
             color: #e2e8f0;
             padding: 7px 13px;
             border-radius: 30px;
@@ -400,8 +471,9 @@
         }
 
         .wish-chip.selected {
-            background: rgba(255, 42, 133, 0.25);
-            border-color: var(--primary-pink);
+            background: rgba(255, 42, 133, 0.28);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 14px rgba(255, 42, 133, 0.45);
             color: #fff;
             transform: scale(1.04);
         }
@@ -409,7 +481,8 @@
         .wish-reply {
             margin-top: 12px;
             font-size: 0.85rem;
-            color: #ff7eb3;
+            color: #ff85ba;
+            text-shadow: 0 0 10px rgba(255, 42, 133, 0.35);
             min-height: 22px;
             font-weight: 700;
         }
@@ -422,7 +495,7 @@
         }
 
         .gift-btn {
-            background: linear-gradient(45deg, var(--primary-pink), #ff758c);
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-orange));
             color: white;
             border: none;
             padding: 15px 28px;
@@ -431,7 +504,7 @@
             font-family: 'Cairo', sans-serif;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(255, 42, 133, 0.45);
+            box-shadow: 0 0 24px rgba(255, 42, 133, 0.55), 0 10px 25px rgba(0, 0, 0, 0.45);
             transition: all 0.3s ease;
             width: 100%;
             display: flex;
@@ -442,9 +515,11 @@
         .gift-btn:active { transform: scale(0.96); }
 
         .replay-btn {
-            background: transparent;
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            color: var(--neon-gold);
+            background: rgba(0, 240, 255, 0.06);
+            border: 1px solid rgba(0, 240, 255, 0.45);
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.16);
             padding: 11px 20px;
             font-size: 0.9rem;
             font-weight: 700;
@@ -453,14 +528,14 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .replay-btn:hover { background: rgba(255, 215, 0, 0.1); }
+        .replay-btn:hover { background: rgba(0, 240, 255, 0.14); }
 
         /* نافذة الجواب */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 9, 20, 0.88);
-            backdrop-filter: blur(12px);
+            background: rgba(6, 5, 14, 0.88);
+            backdrop-filter: blur(14px);
             z-index: 2000;
             display: none;
             align-items: center;
@@ -475,24 +550,25 @@
         }
 
         .letter-box {
-            background: linear-gradient(145deg, #16142b, #0f0e1d);
-            border: 1px solid rgba(255, 215, 0, 0.4);
+            background: linear-gradient(145deg, rgba(22, 19, 46, 0.95), rgba(11, 10, 24, 0.98));
+            border: 1px solid rgba(0, 240, 255, 0.45);
             border-radius: 24px;
             padding: 28px 22px;
             max-width: 420px;
             width: 100%;
             text-align: right;
             position: relative;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.75);
+            box-shadow: 0 0 32px rgba(255, 42, 133, 0.25), 0 25px 50px rgba(0, 0, 0, 0.8);
         }
 
         .letter-header {
             text-align: center;
             color: var(--neon-gold);
+            text-shadow: 0 0 14px rgba(255, 215, 0, 0.45);
             font-size: 1.2rem;
             font-weight: 800;
             margin-bottom: 14px;
-            border-bottom: 1px dashed rgba(255,255,255,0.15);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
             padding-bottom: 10px;
         }
 
@@ -508,13 +584,31 @@
             margin-top: 20px;
             width: 100%;
             padding: 12px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 42, 133, 0.16);
+            border: 1px solid rgba(255, 42, 133, 0.45);
             color: white;
             border-radius: 12px;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
             cursor: pointer;
+        }
+
+        /* حركة هادية جداً للخلفية */
+        @keyframes driftSlowA {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-45px, 55px) scale(1.12); }
+        }
+        @keyframes driftSlowB {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -45px) scale(1.1); }
+        }
+        @keyframes driftSlowC {
+            0% { transform: translate(-50%, -50%) scale(0.95); }
+            100% { transform: translate(-42%, -58%) scale(1.15); }
+        }
+        @keyframes driftSlowD {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-35px, -40px) scale(1.08); }
         }
 
         @keyframes flicker {
@@ -539,11 +633,16 @@
 </head>
 <body>
 
-    <!-- أزرار التحكم العلوية -->
-    <div class="top-controls">
-        <button class="ctrl-btn" id="soundToggle" title="تشغيل/إيقاف الصوت">🔊 الصوت شغال</button>
-        <button class="ctrl-btn" id="micToggle" onclick="toggleMicBlow()" title="اطفي الشمعة بالنفخ">🎤 نفخ بالمايك</button>
+    <!-- خلفية نيون هادية ومتحركة -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="glow-orb orb-pink"></div>
+        <div class="glow-orb orb-blue"></div>
+        <div class="glow-orb orb-gold"></div>
+        <div class="glow-orb orb-orange"></div>
     </div>
+
+    <!-- زر التحكم في الصوت -->
+    <button class="sound-control" id="soundToggle" title="تشغيل/إيقاف الصوت">🔊 الصوت شغال</button>
 
     <div class="container">
         <!-- البطاقة الرئيسية -->
@@ -556,7 +655,7 @@
             </div>
 
             <h1 class="main-title" id="mainTitle">كل سنة وأنتِ طيبة يا مريم! 🎂</h1>
-            <p class="sub-title" id="subTitle">مبروك الـ 26 سنة! يلا اتمني أمنية حلوة ودوسي على الشمعة (أو انفخي فيها) عشان نشوف الكلام.</p>
+            <p class="sub-title" id="subTitle">مبروك الـ 26 سنة! يلا اتمني أمنية حلوة ودوسي على الشمعة عشان نشوف الكلام.</p>
 
             <!-- التورتة التفاعلية -->
             <div class="cake-wrapper" id="cakeTrigger" onclick="blowCandle()">
@@ -680,11 +779,10 @@
             }
         }
 
-        // نغمة ترحيب ناعمة تشتغل تلقائياً مع أول تفاعل أو فتح الصوت
         function playWelcomeChime() {
             if (isMuted) return;
             initAudio();
-            const chord = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            const chord = [523.25, 659.25, 783.99, 1046.50];
             chord.forEach((freq, i) => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -707,7 +805,6 @@
             playWelcomeChime();
         }
 
-        // محاولة التشغيل التلقائي فور تحميل الصفحة، وضمانه مع أول لمسة/نقرة/تمرير على الموبايل
         window.addEventListener('DOMContentLoaded', () => {
             initAudio();
             if (audioCtx && audioCtx.state === 'running') {
@@ -730,7 +827,6 @@
             }
         });
 
-        // مؤثر نفخ الهواء لإطفاء الشمعة
         function playBlowSound() {
             if (isMuted) return;
             initAudio();
@@ -759,7 +855,6 @@
             noise.start();
         }
 
-        // مؤثر سقوط رقم 2 (Slide Whistle + Thud خفيف)
         function playSlideDownSound() {
             if (isMuted) return;
             initAudio();
@@ -776,7 +871,6 @@
             osc.stop(audioCtx.currentTime + 0.6);
         }
 
-        // مؤثر احتفالي (Sparkle + Pop) عند ظهور رقم 6 والكونفيتي
         function playPopSound() {
             if (isMuted) return;
             initAudio();
@@ -796,7 +890,6 @@
             });
         }
 
-        // مؤثر نقرة لطيفة عند قلب الكارت أو اختيار أمنية
         function playFlipSound(highPitch = false) {
             if (isMuted) return;
             initAudio();
@@ -813,7 +906,6 @@
             osc.stop(audioCtx.currentTime + 0.11);
         }
 
-        // مؤثر فتح الهدية
         function playGiftOpenSound() {
             if (isMuted) return;
             initAudio();
@@ -833,7 +925,6 @@
             });
         }
 
-        // عزف لحن Happy Birthday بالكامل بصوت صندوق موسيقى دافئ
         function playHappyBirthdaySong() {
             if (isMuted) return;
             initAudio();
@@ -862,65 +953,14 @@
         }
 
         // ==========================================
-        // 2. إطفاء الشمعة باللمس أو بالنفخ في الميكروفون
+        // 2. إطفاء الشمعة والـ Plot Twist
         // ==========================================
         let isBlown = false;
-        let micActive = false;
-        let micStream = null;
-
-        async function toggleMicBlow() {
-            if (isBlown) return;
-            const btn = document.getElementById('micToggle');
-            if (micActive) {
-                stopMic();
-                btn.classList.remove('active-mic');
-                btn.textContent = '🎤 نفخ بالمايك';
-                return;
-            }
-
-            try {
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                initAudio();
-                const source = audioCtx.createMediaStreamSource(micStream);
-                const analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
-                source.connect(analyser);
-
-                micActive = true;
-                btn.classList.add('active-mic');
-                btn.textContent = '🌬️ انفخي دلوقتي...';
-
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                function detectBlow() {
-                    if (!micActive || isBlown) return;
-                    analyser.getByteFrequencyData(dataArray);
-                    const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-                    if (avg > 65) {
-                        stopMic();
-                        blowCandle();
-                        return;
-                    }
-                    requestAnimationFrame(detectBlow);
-                }
-                detectBlow();
-            } catch (e) {
-                btn.textContent = '👆 دوسي ع الشمعة';
-            }
-        }
-
-        function stopMic() {
-            micActive = false;
-            if (micStream) {
-                micStream.getTracks().forEach(t => t.stop());
-                micStream = null;
-            }
-        }
 
         function blowCandle() {
             if (isBlown) return;
             isBlown = true;
             autoStarted = true;
-            stopMic();
 
             document.getElementById('flame').classList.add('out');
             document.getElementById('smoke').classList.add('rise');
@@ -946,7 +986,7 @@
                     badge.style.borderColor = '#ffd700';
                     badge.style.color = '#ffd700';
 
-                    document.getElementById('mainTitle').innerHTML = 'مريم تمت <span style="color:#ff2a85;">6 سنين</span> بس! 😄🌸';
+                    document.getElementById('mainTitle').innerHTML = 'مريم تمت <span style="color:#ff2a85; text-shadow:0 0 18px rgba(255,42,133,0.75);">6 سنين</span> بس! 😄🌸';
                     document.getElementById('subTitle').textContent = '26 إيه بس؟! أنتِ بنوتة صغننة وهتفضلي طول عمرك نونو في نظري، وضحكتك والغمزتين شاهدين!';
 
                     playPopSound();
@@ -970,7 +1010,7 @@
             }
             fire(0.25, { spread: 26, startVelocity: 55, colors: ['#ff2a85', '#ffd700'] });
             fire(0.2, { spread: 60, colors: ['#00f0ff', '#ffffff'] });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ['#ff7b00', '#ff2a85'] });
             fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
         }
 
